@@ -60,7 +60,7 @@ def handle_message(event):
 	if interpretation==False:
 		# new question
 		mode=3
-		if "chapter" in query:
+		if "chapter" in query.lower():
 			mode=2
 		code,result = question(mode)
 		messages=[
