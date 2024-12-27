@@ -17,7 +17,7 @@ line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
 
 alphabet=[char for char in "abcdefghijklmnopqrstuvwxyz"]
-chapter_name=[["I Nephi","1-ne"],["II Nephi","2-ne"],["Jacob","jacob"],["Enos","enos"],["Jarom","jarom"],["Omni","omni"],["Words of Mormon","w-of-m"],["Mosiah","mosiah"],["Alma","alma"],["Helaman","hel"],["III Nephi","3-ne"],["IV Nephi","4-ne"],["Mormon","morm"],["Ether","ether"],["Moroni","moro"]]
+chapter_name=[["1 Nephi","1-ne"],["2 Nephi","2-ne"],["Jacob","jacob"],["Enos","enos"],["Jarom","jarom"],["Omni","omni"],["Words of Mormon","w-of-m"],["Mosiah","mosiah"],["Alma","alma"],["Helaman","hel"],["3 Nephi","3-ne"],["4 Nephi","4-ne"],["Mormon","morm"],["Ether","ether"],["Moroni","moro"]]
 number_of_chapter=[22,33,7,1,1,1,1,29,63,16,30,1,9,15,10]
 
 number_of_verse=[20,24,31,38,22,6,22,38,6,22,36,23,42,30,36,39,55,25,24,22,26,31]
@@ -60,8 +60,7 @@ def handle_message(event):
 		# new question
 		q_num,result = question()
 		messages=[
-			TextSendMessage(text=result),
-			TextSendMessage(text="Send the following code back to me to know the answer:"),
+			TextSendMessage(text=f"{result}Reply with the following code:"),
 			TextSendMessage(text=encrypt(q_num))
 		]
 	else:
@@ -145,7 +144,7 @@ def fromTo(html,i,text,label,afterFrom,untilBefore,copy):
 
 def encrypt(num):
 	# 6,7,8進数に変換
-	code="dt"
+	code="df"
 	for c in str(convert_pow(num,6)):
 		# 6進数: ab cdefgh ijklmn opqrst uvwxyz
 		code+=alphabet[6*random.randint(0,3)+int(c)+2]
@@ -158,23 +157,23 @@ def encrypt(num):
 		# 形は10進数: abcdefghij klmnopqrst uvwxyz
 		code+=alphabet[10*random.randint(0,1)+int(c)]
 	# print([convert_pow(num,6),convert_pow(9265-num,8),31415-convert_pow(num,7)])
-	return f"2{code}xyz"
+	return f"2{code}veq"
 
 
 def ifcode(message):
-	# 2dtやxyzが含まれていない場合、無効
-	if "2dt" not in message or "xyz" not in message:
+	# 2dfやveqが含まれていない場合、無効
+	if "2df" not in message or "veq" not in message:
 		return False
 	sign=[0,["a","b"],["y","z"],[]]
 	i=0
 	while 1:
-		if message[i:i+3]=="2dt":
+		if message[i:i+3]=="2df":
 			i+=3
 			break
 		i+=1
 	sep=[""]
 	while i+2<len(message):
-		if len(sep)==3 and message[i:i+3]=="xyz":
+		if len(sep)==3 and message[i:i+3]=="veq":
 			break
 		if message[i] in sign[len(sep)]:
 			sep.append("")
