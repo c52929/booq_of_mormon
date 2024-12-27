@@ -56,7 +56,7 @@ def callback():
 def handle_message(event):
 	query=event.message.text
 	user_id=event.source.user_id
-	interpretation=ifcode(query)
+	mode,interpretation=ifcode(query)
 	if interpretation==False:
 		# new question
 		mode=3
@@ -70,7 +70,7 @@ def handle_message(event):
 		]
 	else:
 		# tell answer
-		record,chapter,r = split_num(int(interpretation)-1,mode) # -1することに注意
+		record,chapter,r = split_num(interpretation,mode) # -1することに注意
 		if mode==3:
 			messages=TextSendMessage(f"{chapter_name[record][0]} {chapter}:{r}\n\nhttps://www.churchofjesuschrist.org/study/scriptures/bofm/{chapter_name[record][1]}/{chapter}?lang=jpn&id=p{r}#p{r}")
 		elif mode==2:
