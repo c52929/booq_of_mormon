@@ -60,7 +60,8 @@ def handle_message(event):
 		# new question
 		q_num,result = question()
 		messages=[
-			TextSendMessage(text=f"Question:\n\n{result}\n\nFor answer, return the following code:"),
+			TextSendMessage(text=result),
+			TextSendMessage(text="Send the following code back to me to know the answer:"),
 			TextSendMessage(text=encrypt(q_num))
 		]
 	else:
@@ -72,43 +73,6 @@ def handle_message(event):
 	except LineBotApiError as e:
 		print(f"Error: {e}")
 		line_bot_api.push_message(user_id,TextSendMessage(text="An error has occured. Please try again."))
-
-
-# def web_scrape(mode):
-# 	chapter_name=[["I Nephi","1-ne"],["II Nephi","2-ne"],["Jacob","jacob"],["Enos","enos"],["Jarom","jarom"],["Omni","omni"],["Words of Mormon","w-of-m"],["Mosiah","mosiah"],["Alma","alma"],["Helaman","hel"],["III Nephi","3-ne"],["IV Nephi","4-ne"],["Mormon","morm"],["Ether","ether"],["Moroni","moro"]]
-# 	if mode:
-# 		record,chapter,r = pick_verse()
-# 		response = requests.get(f"https://www.churchofjesuschrist.org/study/scriptures/bofm/{chapter_name[record][1]}/{chapter}?lang=jpn")
-# 		if response.status_code == 200:
-# 			# soup = bs(response.text, "html.parser") by chatGPT
-# 			response.raise_for_status()
-# 			soup=bs(response.content,"html.parser")
-# 			soup=bs(response.content.decode("utf-8", "ignore"), "html.parser")
-# 			elms=soup.select(f"#p{r}")
-# 			html=str(elms)
-
-# 			i,text = fromTo(html,0,"","<p","a","</span>",False)
-# 			while 1:
-# 				if html[i:i+6]=="<ruby>":
-# 					i,text = fromTo(html,i,text,"<ruby>","<rb>","</rb>",True)
-# 					i,text = fromTo(html,i,text,"<rt>","</rt>","</ruby>",False)
-# 				elif html[i:i+4]=="</p>" or i>len(html):
-# 					break
-# 				elif html[i:i+3]=="<a ":
-# 					i,text = fromTo(html,i,text,"<a ","</sup>","</a>",True)
-# 				elif html[i:i+5]=="<span":
-# 					i,text = fromTo(html,i,text,"<span","</span",">",False)
-# 				else:
-# 					text+=html[i]
-# 					i+=1
-# 			return text
-# 			# 例: 検索結果のタイトルを取得
-# 			# result = soup.find("title").text
-# 			# return result
-# 		return None
-# 	elif mode==0:
-# 		result=f"{chapter_name[record][0]} {chapter}:{r}\n\nhttps://www.churchofjesuschrist.org/study/scriptures/bofm/{chapter_name[record][1]}/{chapter}?lang=jpn&id=p{r}#p{r}"
-# 		return result
 
 
 def question():
@@ -177,26 +141,6 @@ def fromTo(html,i,text,label,afterFrom,untilBefore,copy):
 				break
 	i+=len(untilBefore)
 	return i,text
-
-# def pick_verse():
-# 	r=random.randint(0,nV-1)
-# 	chapter=0
-# 	while 1:
-# 		if r-number_of_verse[chapter]>=0:
-# 			r-=number_of_verse[chapter]
-# 			chapter+=1
-# 		else:
-# 			break
-# 	record=0
-# 	while 1:
-# 		if chapter-number_of_chapter[record]>=0:
-# 			chapter-=number_of_chapter[record]
-# 			record+=1
-# 		else:
-# 			break
-# 	chapter+=1
-# 	r+=1
-# 	return record,chapter,r
 
 
 def encrypt(num):
