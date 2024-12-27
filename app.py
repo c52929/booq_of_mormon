@@ -42,7 +42,7 @@ def handle_message(event):
 	line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply))
 
 def web_scrape(mode):
-	if mode==0:
+	if mode:
 		record,chapter,r = pick_verse()
 		response = requests.get(f"https://www.churchofjesuschrist.org/study/scriptures/bofm/{chapter_name[record][1]}/{chapter}?lang=jpn")
 		if response.status_code == 200:
@@ -72,7 +72,7 @@ def web_scrape(mode):
 			# result = soup.find("title").text
 			# return result
 		return None
-	elif mode:
+	elif mode==0:
 		chapter_name=[["I Nephi","1-ne"],["II Nephi","2-ne"],["Jacob","jacob"],["Enos","enos"],["Jarom","jarom"],["Omni","omni"],["Words of Mormon","w-of-m"],["Mosiah","mosiah"],["Alma","alma"],["Helaman","hel"],["III Nephi","3-ne"],["IV Nephi","4-ne"],["Mormon","morm"],["Ether","ether"],["Moroni","moro"]]
 		result=f"{chapter_name[record][0]} {chapter}:{r}\n\nhttps://www.churchofjesuschrist.org/study/scriptures/bofm/{chapter_name[record][1]}/{chapter}?lang=jpn&id=p{r}#p{r}"
 		return result
