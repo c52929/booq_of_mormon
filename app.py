@@ -5,6 +5,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage
 import random
+import os
 
 app = Flask(__name__)
 
@@ -136,4 +137,5 @@ def pick_verse():
 	return record,chapter,r
 
 if __name__ == "__main__":
-	app.run()
+	port = int(os.environ.get("PORT", 5000))  # 環境変数PORTが設定されていない場合は5000をデフォルトに
+	app.run(host="0.0.0.0", port=port)
