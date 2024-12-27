@@ -96,9 +96,9 @@ def question(mode):
 	if mode==3:
 		text=html_to_txt(str(soup.select(f"#p{r}")))
 	elif mode==2:
-		text=f"1 {html_to_txt(str(soup.select(f"#p{1}")))}"
+		text=f"1 {html_to_txt(str(soup.select(f'#p{1}')))}"
 		for v_i in range(2,n_verse+1):
-			text+=f"\n{v_i} {html_to_txt(str(soup.select(f"#p{v_i}")))}"
+			text+=f"\n{v_i} {html_to_txt(str(soup.select(f'#p{v_i}')))}"
 	return encrypt(q_num,mode),text
 
 
