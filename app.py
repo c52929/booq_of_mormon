@@ -17,6 +17,8 @@ line_bot_api=LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler=WebhookHandler(CHANNEL_SECRET)
 
 alphabet=[char for char in "abcdefghijklmnopqrstuvwxyz"]
+trigger=["bom","むぎ","ぐめ","どおこ","しつもーん","しつも〜ん","おもちです","はいども","みそしるー","ctr","trc","aws"]
+
 chapter_name=[["1 Nephi","1-ne"],["2 Nephi","2-ne"],["Jacob","jacob"],["Enos","enos"],["Jarom","jarom"],["Omni","omni"],["Words of Mormon","w-of-m"],["Mosiah","mosiah"],["Alma","alma"],["Helaman","hel"],["3 Nephi","3-ne"],["4 Nephi","4-ne"],["Mormon","morm"],["Ether","ether"],["Moroni","moro"]]
 number_of_chapter=[22,33,7,1,1,1,1,29,63,16,30,1,9,15,10]
 
@@ -56,11 +58,18 @@ def callback():
 def handle_message(event):
 	query=event.message.text
 	user_id=event.source.user_id
+	fire=0
+	for tr in trigger:
+		if tr in query:
+			fire=1
+			break
+	if fire==0:
+		return
 	mode,interpretation=ifcode(query)
 	if interpretation==False:
 		# new question
 		mode=3
-		if "chapter" in query.lower():
+		if "chapter" in query.lower() or "むぎちゃ" in query:
 			mode=2
 		code,result = question(mode)
 		messages=[
@@ -228,21 +237,15 @@ def ifcode(message):
 	# print(sep)
 
 	nums=[0,0,0]
+	mod=[0,1,[3,4,5],[6,8,10]]
+	for c in sep[0]:
+		nums[0]=10*nums[0]+(alphabet.index(c)-2)%mod[mode][0]
+	for c in sep[1]:
+		nums[1]=10*nums[1]+alphabet.index(c)%mod[mode][1]
+	for c in sep[2]:
+		nums[2]=10*nums[2]+alphabet.index(c)%mod[mode][2]
 	if mode==3:
-		for c in sep[0]:
-			nums[0]=10*nums[0]+(alphabet.index(c)-2)%6
-		for c in sep[1]:
-			nums[1]=10*nums[1]+alphabet.index(c)%8
-		for c in sep[2]:
-			nums[2]=10*nums[2]+alphabet.index(c)%10
 		nums[2]=31415-nums[2]
-	elif mode==2:
-		for c in sep[0]:
-			nums[0]=10*nums[0]+(alphabet.index(c)-2)%3
-		for c in sep[1]:
-			nums[1]=10*nums[1]+alphabet.index(c)%4
-		for c in sep[2]:
-			nums[2]=10*nums[2]+alphabet.index(c)%5
 	# print(nums)
 
 	nums=list(map(str,nums))
