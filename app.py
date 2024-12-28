@@ -17,7 +17,7 @@ line_bot_api=LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler=WebhookHandler(CHANNEL_SECRET)
 
 alphabet=[char for char in "abcdefghijklmnopqrstuvwxyz"]
-trigger=["bom","むぎ","ぐめ","どおこ","しつもーん","しつも〜ん","おもちです","はいども","みそしるー","ctr","trc","aws"]
+trigger=["bom","むぎ","ぐめ","どおこ","しつもーん","しつも〜ん","おもちです","はいども","みそしるー","ctr","trc","aws","uvu"]
 
 chapter_name=[["1 Nephi","1-ne"],["2 Nephi","2-ne"],["Jacob","jacob"],["Enos","enos"],["Jarom","jarom"],["Omni","omni"],["Words of Mormon","w-of-m"],["Mosiah","mosiah"],["Alma","alma"],["Helaman","hel"],["3 Nephi","3-ne"],["4 Nephi","4-ne"],["Mormon","morm"],["Ether","ether"],["Moroni","moro"]]
 number_of_chapter=[22,33,7,1,1,1,1,29,63,16,30,1,9,15,10]
@@ -59,7 +59,7 @@ def handle_message(event):
 	query=event.message.text
 	user_id=event.source.user_id
 	fire=0
-	for tr in trigger:
+	for tr in trigger+["2df"]:
 		if tr in query:
 			fire=1
 			break
@@ -205,12 +205,12 @@ def encrypt(num,mode):
 			# 5進数: abcde fghij klmno pqrst uvwxyz
 			code+=alphabet[5*random.randint(0,3)+int(c)]
 		# print([convert_pow(num,3),convert_pow(3*num+128,4),2718-convert_pow(num,5)])
-	return f"2df{code}veq"
+	return f"2df{code}uvu"
 
 
 def ifcode(message):
-	# 2dfやveqが含まれていない場合、無効
-	if "2df" not in message or "veq" not in message:
+	# 2dfやuvuが含まれていない場合、無効
+	if "2df" not in message or "uvu" not in message:
 		return False,False
 	sign=[0,["ゎ","っ","b","a"],["ね","ぽ","y","z"],[]]
 	i=0
@@ -222,7 +222,7 @@ def ifcode(message):
 	sep=[""]
 	modes=[]
 	while i+2<len(message):
-		if len(sep)==3 and message[i:i+3]=="veq":
+		if len(sep)==3 and message[i:i+3]=="uvu":
 			break
 		if message[i] in sign[len(sep)]:
 			modes.append(sign[len(sep)].index(message[i]))
