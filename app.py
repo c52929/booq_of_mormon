@@ -103,7 +103,7 @@ def question(mode,lang):
 	elif mode==2:
 		q_num=random.randint(0,nC-1)
 		record,chapter,n_verse = split_num(q_num,2)
-	res=requests.get(f"https://www.churchofjesuschrist.org/study/scriptures/bofm/{chapter_name[record][1]}/{chapter}?lang={lang}")
+	res=requests.get(f"https://www.churchofjesuschrist.org/study/scriptures/bofm/{chapter_name[record][1]}/{chapter}?lang={["jpn","eng"][lang]}")
 	res.raise_for_status()
 	# soup=bs(res.content,"html.parser")
 	soup=bs(res.content.decode("utf-8", "ignore"), "html.parser")
