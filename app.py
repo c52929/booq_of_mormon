@@ -17,7 +17,7 @@ line_bot_api=LineBotApi(CHANNEL_ACCESS_TOKEN)
 handler=WebhookHandler(CHANNEL_SECRET)
 
 alphabet=[char for char in "abcdefghijklmnopqrstuvwxyz"]
-trigger=["bom","むぎ","ぐめ","どおこ","しつもーん","しつも〜ん","おもちです","はいども","みそしるー","ctr","trc","aws","uvu"]
+trigger=["bom","むぎ","ぐめ","どおこ","しつもーん","しつも〜ん","おもちです","はいども","みそしるー","ctr","trc","aws","uve"]
 
 chapter_name=[["1 Nephi","1-ne"],["2 Nephi","2-ne"],["Jacob","jacob"],["Enos","enos"],["Jarom","jarom"],["Omni","omni"],["Words of Mormon","w-of-m"],["Mosiah","mosiah"],["Alma","alma"],["Helaman","hel"],["3 Nephi","3-ne"],["4 Nephi","4-ne"],["Mormon","morm"],["Ether","ether"],["Moroni","moro"]]
 number_of_chapter=[22,33,7,1,1,1,1,29,63,16,30,1,9,15,10]
@@ -65,13 +65,16 @@ def handle_message(event):
 			break
 	if fire==0:
 		return
-	mode,interpretation=ifcode(query)
+	modes,interpretation=ifcode(query)
 	if interpretation==False:
 		# new question
 		mode=3
 		if "chapter" in query.lower() or "むぎちゃ" in query:
 			mode=2
-		code,result = question(mode)
+		lang=0
+		if "en" in query.lower():
+			lang=1
+		code,result = question(mode,lang)
 		messages=[
 			TextSendMessage(text=result),
 			TextSendMessage(text="Reply with the following code:"),
@@ -79,11 +82,13 @@ def handle_message(event):
 		]
 	else:
 		# tell answer
+		mode=modes[0]+2
+		lang=["jpn","eng"][modes[1]]
 		record,chapter,r = split_num(interpretation-1,mode) # -1することに注意
 		if mode==3:
-			messages=TextSendMessage(f"{chapter_name[record][0]} {chapter}:{r}\n\nhttps://www.churchofjesuschrist.org/study/scriptures/bofm/{chapter_name[record][1]}/{chapter}?lang=jpn&id=p{r}#p{r}")
+			messages=TextSendMessage(f"{chapter_name[record][0]} {chapter}:{r}\n\nhttps://www.churchofjesuschrist.org/study/scriptures/bofm/{chapter_name[record][1]}/{chapter}?lang={lang}&id=p{r}#p{r}")
 		elif mode==2:
-			messages=TextSendMessage(f"{chapter_name[record][0]} {chapter}\n\nhttps://www.churchofjesuschrist.org/study/scriptures/bofm/{chapter_name[record][1]}/{chapter}?lang=jpn")
+			messages=TextSendMessage(f"{chapter_name[record][0]} {chapter}\n\nhttps://www.churchofjesuschrist.org/study/scriptures/bofm/{chapter_name[record][1]}/{chapter}?lang={lang}")
 	try:
 		line_bot_api.reply_message(event.reply_token, messages)
 	except LineBotApiError as e:
@@ -91,14 +96,14 @@ def handle_message(event):
 		line_bot_api.push_message(user_id,TextSendMessage(text="An error has occured. Please try again."))
 
 
-def question(mode):
+def question(mode,lang):
 	if mode==3:
 		q_num=random.randint(0,nV-1)
 		record,chapter,r = split_num(q_num,3)
 	elif mode==2:
 		q_num=random.randint(0,nC-1)
 		record,chapter,n_verse = split_num(q_num,2)
-	res=requests.get(f"https://www.churchofjesuschrist.org/study/scriptures/bofm/{chapter_name[record][1]}/{chapter}?lang=jpn")
+	res=requests.get(f"https://www.churchofjesuschrist.org/study/scriptures/bofm/{chapter_name[record][1]}/{chapter}?lang={lang}")
 	res.raise_for_status()
 	# soup=bs(res.content,"html.parser")
 	soup=bs(res.content.decode("utf-8", "ignore"), "html.parser")
@@ -108,7 +113,7 @@ def question(mode):
 		text=f"1 {html_to_txt(str(soup.select(f'#p{1}')))}"
 		for v_i in range(2,n_verse+1):
 			text+=f"\n{v_i} {html_to_txt(str(soup.select(f'#p{v_i}')))}"
-	return encrypt(q_num,mode),text
+	return encrypt(q_num,mode,lang),text
 
 
 def html_to_txt(html):
@@ -175,7 +180,7 @@ def fromTo(html,i,text,label,afterFrom,untilBefore,copy):
 	return i,text
 
 
-def encrypt(num,mode):
+def encrypt(num,mode,lang):
 	code=""
 	if mode==3:
 		# 6,7,8進数に変換
@@ -186,7 +191,7 @@ def encrypt(num,mode):
 		for c in str(convert_pow(31415-num,8)):
 			# 8進数: abcdefgh ijklmnop qrstuvwx yz
 			code+=alphabet[8*random.randint(0,2)+int(c)]
-		code+="z"
+		code+=["y","z"][lang]
 		for c in str(31415-convert_pow(num,7)):
 			# 形は10進数: abcdefghij klmnopqrst uvwxyz
 			code+=alphabet[10*random.randint(0,1)+int(c)]
@@ -200,19 +205,19 @@ def encrypt(num,mode):
 		for c in str(convert_pow(3*num+128,4)):
 			# 4進数: abcd efgh ijkl mnop qrst uvwx yz
 			code+=alphabet[4*random.randint(0,5)+int(c)]
-		code+="y"
+		code+=["y","z"][lang]
 		for c in str(convert_pow(2718-num,5)):
 			# 5進数: abcde fghij klmno pqrst uvwxyz
 			code+=alphabet[5*random.randint(0,3)+int(c)]
 		# print([convert_pow(num,3),convert_pow(3*num+128,4),2718-convert_pow(num,5)])
-	return f"2df{code}uvu"
+	return f"32df{code}uvex"
 
 
 def ifcode(message):
-	# 2dfやuvuが含まれていない場合、無効
-	if "2df" not in message or "uvu" not in message:
+	# 2dfやuveが含まれていない場合、無効
+	if "2df" not in message or "uve" not in message:
 		return False,False
-	sign=[0,["ゎ","っ","b","a"],["ね","ぽ","y","z"],[]]
+	sign=[0,["b","a"],["y","z"],[]]
 	i=0
 	while 1:
 		if message[i:i+3]=="2df":
@@ -222,7 +227,7 @@ def ifcode(message):
 	sep=[""]
 	modes=[]
 	while i+2<len(message):
-		if len(sep)==3 and message[i:i+3]=="uvu":
+		if len(sep)==3 and message[i:i+3]=="uve":
 			break
 		if message[i] in sign[len(sep)]:
 			modes.append(sign[len(sep)].index(message[i]))
@@ -230,10 +235,8 @@ def ifcode(message):
 		else:
 			sep[-1]+=message[i]
 		i+=1
-	if modes[0]!=modes[1]:
-		return False,False
-	mode=modes[0]
-	# print(f"mode = {mode}")
+	mode=modes[0]+2
+	# print(f"mode={mode}, lang={modes[1]}")
 	# print(sep)
 
 	nums=[0,0,0]
@@ -262,9 +265,9 @@ def ifcode(message):
 	# print(nums_dec)
 
 	if nums_dec[0]==nums_dec[1] or nums_dec[0]==nums_dec[2]:
-		return mode,nums_dec[0]+1 # +1していることに注意
+		return modes,nums_dec[0]+1 # +1していることに注意
 	elif nums_dec[1]==nums_dec[2]:
-		return mode,nums_dec[1]+1 # +1していることに注意
+		return modes,nums_dec[1]+1 # +1していることに注意
 	else:
 		return False,False
 
